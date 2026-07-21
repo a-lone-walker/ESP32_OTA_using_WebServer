@@ -4,7 +4,7 @@
 #include <ElegantOTA.h>
 
 const char* ssid = "ssid";
-const char* password = "ndgl@2025";
+const char* password = "password";
 
 WebServer server(80);
 
