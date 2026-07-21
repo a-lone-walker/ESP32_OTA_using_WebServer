@@ -43,9 +43,9 @@ This method is commonly used for local maintenance, customer deployments, and Io
 # Project Structure
 
 ```text
-ESP32_ElegantOTA/
+ESP32_OTA_using_WebServer/
 │
-├── ESP32_ElegantOTA.ino
+├── ESP32_OTA_ElegantOTA.ino
 ├── credentials.h
 ├── README.md
 └── images/
