@@ -1,30 +1,33 @@
-# ESP32 OTA Firmware Update using Arduino IDE
+# ESP32 Web OTA using ElegantOTA
 
 ## Overview
 
-This project demonstrates how to perform **Over-the-Air (OTA) firmware updates** on an ESP32 using the **Arduino IDE**. Once the initial firmware is uploaded via USB, all future firmware updates can be uploaded wirelessly over the same Wi-Fi network without reconnecting the USB cable.
+This project demonstrates how to perform **Over-the-Air (OTA) firmware updates** on an ESP32 using **ElegantOTA**. The ESP32 hosts a local web server, allowing firmware updates through a web browser without requiring the Arduino IDE after the initial firmware upload.
 
-This approach is ideal during development, testing, and debugging, where frequent firmware updates are required.
+Once the ESP32 is connected to the same Wi-Fi network, users can access the OTA webpage using the ESP32's IP address, upload a compiled firmware (`.bin`) file, and update the device wirelessly.
+
+This method is commonly used for local maintenance, customer deployments, and IoT prototypes.
 
 ---
 
 # Features
 
-* Wireless firmware upload using Arduino IDE
+* Wireless firmware update through a web browser
 * No USB cable required after initial setup
-* Automatic device discovery on the local network
-* Fast development workflow
-* Simple OTA implementation
-* Supports repeated firmware updates
+* User-friendly web interface
+* Simple firmware upload process
+* Automatic firmware flashing
+* Automatic device reboot after successful update
+* Supports repeated OTA updates
 
 ---
 
 # Hardware Required
 
 * ESP32 Development Board
-* USB Cable (only for the first upload)
+* USB Cable (only for initial firmware upload)
 * Wi-Fi Router
-* Computer with Arduino IDE
+* Computer connected to the same Wi-Fi network
 
 ---
 
@@ -32,16 +35,17 @@ This approach is ideal during development, testing, and debugging, where frequen
 
 * Arduino IDE 2.x
 * ESP32 Board Package
-* ArduinoOTA Library (included with ESP32 Board Package)
+* ElegantOTA Library
+* WebServer Library (ESP32 Core)
 
 ---
 
 # Project Structure
 
 ```text
-ESP32_Arduino_OTA/
+ESP32_ElegantOTA/
 │
-├── ESP32_Arduino_OTA.ino
+├── ESP32_ElegantOTA.ino
 ├── credentials.h
 ├── README.md
 └── images/
@@ -49,7 +53,7 @@ ESP32_Arduino_OTA/
 
 ---
 
-# How Arduino OTA Works
+# How Web OTA Works
 
 ```text
                 USB Upload (Only Once)
@@ -60,21 +64,25 @@ ESP32_Arduino_OTA/
                 Connect to Wi-Fi
                         │
                         ▼
-         Arduino IDE Detects ESP32
-                        │
-                Select Network Port
+              Start Web Server
                         │
                         ▼
-           Compile New Firmware (.bin)
+             ElegantOTA Web Page
                         │
                         ▼
-          Wireless Firmware Upload
+      User Opens Browser (ESP32 IP)
                         │
                         ▼
-              ESP32 Installs Update
+             Select firmware.bin
                         │
                         ▼
-                  Automatic Restart
+               Upload Firmware
+                        │
+                        ▼
+          Firmware Written to Flash
+                        │
+                        ▼
+              Automatic Restart
                         │
                         ▼
                New Firmware Running
@@ -86,7 +94,7 @@ ESP32_Arduino_OTA/
 
 ### Step 1
 
-Upload the OTA firmware using a USB cable.
+Upload the Web OTA firmware using a USB cable.
 
 ---
 
@@ -98,95 +106,176 @@ ESP32 connects to the configured Wi-Fi network.
 
 ### Step 3
 
-Open **Tools → Port** in Arduino IDE.
-
-The ESP32 appears as a network device.
-
-Example:
-
-```text
-Network Ports
-
-ESP32 at 192.168.1.105
-```
+The ESP32 starts a web server.
 
 ---
 
 ### Step 4
 
-Modify your program.
+Open the Serial Monitor.
 
-Example:
+Example output:
 
-```cpp
-#define FIRMWARE_VERSION "2.0"
+```text
+WiFi Connected
+IP Address: 192.168.1.105
+
+HTTP Server Started
+OTA Page:
+http://192.168.1.105/update
 ```
 
 ---
 
 ### Step 5
 
-Click **Upload**.
+Open a web browser.
 
-Arduino IDE automatically transfers the compiled firmware over Wi-Fi.
+Navigate to:
+
+```text
+http://<ESP32_IP>/update
+```
+
+Example:
+
+```text
+http://192.168.1.105/update
+```
 
 ---
 
 ### Step 6
 
-ESP32 writes the firmware into Flash Memory.
+ElegantOTA displays a firmware upload page.
 
 ---
 
 ### Step 7
 
-ESP32 automatically restarts.
+Compile your modified project.
+
+Export the compiled binary:
+
+```
+Sketch → Export Compiled Binary
+```
+
+This generates:
+
+```text
+firmware.bin
+```
 
 ---
 
 ### Step 8
 
-The new firmware begins execution.
+Click **Choose File**.
+
+Select the exported `.bin` file.
+
+---
+
+### Step 9
+
+Click **Update**.
+
+The ESP32 receives the firmware, writes it to flash memory, and automatically restarts.
+
+---
+
+### Step 10
+
+The new firmware starts running.
+
+---
+
+# ElegantOTA Update Process
+
+```text
+Developer
+     │
+Modify Code
+     │
+     ▼
+Compile Firmware
+     │
+     ▼
+Export firmware.bin
+     │
+     ▼
+Open Browser
+     │
+     ▼
+http://ESP32_IP/update
+     │
+     ▼
+Choose firmware.bin
+     │
+     ▼
+Upload
+     │
+     ▼
+ESP32 Receives Firmware
+     │
+     ▼
+Write Firmware to Flash
+     │
+     ▼
+Restart ESP32
+     │
+     ▼
+Run Updated Firmware
+```
 
 ---
 
 # Advantages
 
-* No repeated USB connection
-* Faster firmware testing
-* Convenient for embedded development
-* Suitable for local Wi-Fi environments
-* Minimal setup after the initial upload
+* Very simple to use
+* No Arduino IDE required after deployment
+* Browser-based firmware upload
+* User-friendly interface
+* Ideal for demonstrations
+* Perfect for local maintenance
+* Faster than reconnecting USB repeatedly
 
 ---
 
 # Limitations
 
-* ESP32 and computer must be connected to the same Wi-Fi network.
-* Intended primarily for development and testing.
-* Not suitable for large-scale production deployments.
-* Limited to local network access.
+* ESP32 and computer must be on the same Wi-Fi network.
+* Firmware upload is manual.
+* Not suitable for unattended remote deployments.
+* Requires access to the device's local IP address.
 
 ---
 
 # Typical Development Cycle
 
 ```text
-Write Code
-     │
-     ▼
+Modify Code
+      │
+      ▼
 Compile
-     │
-     ▼
-Upload OTA
-     │
-     ▼
+      │
+      ▼
+Export firmware.bin
+      │
+      ▼
+Open OTA Page
+      │
+      ▼
+Upload Firmware
+      │
+      ▼
 ESP32 Restarts
-     │
-     ▼
+      │
+      ▼
 Verify Changes
-     │
-     ▼
+      │
+      ▼
 Repeat
 ```
 
@@ -194,23 +283,50 @@ Repeat
 
 # Applications
 
-* Rapid firmware development
-* Prototype testing
+* Embedded system development
+* IoT prototype testing
 * Classroom demonstrations
-* IoT learning projects
-* Embedded system debugging
+* Robotics projects
+* Industrial maintenance
+* Customer firmware updates over a local network
 
 ---
 
-# Comparison with Web OTA
+# Comparison with Arduino OTA
 
-| Arduino OTA          | Web OTA                          |
-| -------------------- | -------------------------------- |
-| Uses Arduino IDE     | Uses a web browser               |
-| Upload from IDE      | Upload from web page             |
-| Developer-oriented   | User-friendly                    |
-| Requires Arduino IDE | No IDE required after deployment |
-| Best for development | Best for maintenance             |
+| Arduino OTA              | Web OTA (ElegantOTA)                     |
+| ------------------------ | ---------------------------------------- |
+| Uses Arduino IDE         | Uses any web browser                     |
+| Upload directly from IDE | Upload compiled `.bin` file              |
+| Developer-oriented       | User-friendly                            |
+| Requires Arduino IDE     | No IDE required after deployment         |
+| Best for development     | Best for local maintenance and end users |
+
+---
+
+# Comparison with HTTP OTA
+
+| Web OTA                | HTTP OTA                            |
+| ---------------------- | ----------------------------------- |
+| Manual firmware upload | Automatic firmware download         |
+| User initiates update  | Device initiates update             |
+| Local network          | Local or cloud server               |
+| Browser required       | No browser required                 |
+| Suitable for testing   | Suitable for production deployments |
+
+---
+
+# Learning Outcomes
+
+After completing this project, you will understand:
+
+* ESP32 Web Server
+* ElegantOTA
+* Browser-based firmware updates
+* Flash memory concepts
+* OTA firmware upload process
+* Local network communication
+* Embedded firmware deployment
 
 ---
 
@@ -222,22 +338,9 @@ Repeat
 * AWS IoT Core Integration
 * Amazon S3 Firmware Hosting
 * Automatic Version Checking
+* Firmware Authentication
 * Secure Boot
-* Firmware Signature Verification
-* Rollback Support
-
----
-
-# Learning Outcomes
-
-By completing this project, you will understand:
-
-* OTA fundamentals
-* ESP32 Wi-Fi connectivity
-* Arduino OTA workflow
-* Firmware upload over Wi-Fi
-* Flash memory concepts
-* OTA development practices
+* Rollback Mechanism
 
 ---
 
@@ -245,10 +348,10 @@ By completing this project, you will understand:
 
 **Ashok Kadagala**
 
-Embedded Systems | IoT | ESP32 | AWS IoT | MQTT | OTA Firmware Updates
+Embedded Systems | IoT | ESP32 | MQTT | AWS IoT | OTA Firmware Updates
 
 ---
 
 # License
 
-This project is intended for educational and learning purposes. You are free to modify and use the code for personal or academic projects.
+This project is intended for educational and learning purposes. You are free to modify, improve, and use the code for personal, academic, or research projects.
